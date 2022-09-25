@@ -113,6 +113,22 @@ config = {
                     "action": "reboot"
                 }
             }
+        },
+        "auto_update": {
+            "url": "http://{}/protocol.csp",
+            "params": {
+                "function": "get",
+                "fname": "system",
+                "opt": "auto_update"
+            }
+        },
+        "wizard": {
+            "url": "http://{}/protocol.csp",
+            "params": {
+                "function": "get",
+                "fname": "system",
+                "opt": "wizard"
+            }
         }
     },
     "net": {
@@ -171,6 +187,14 @@ config = {
                 "fname": "net",
                 "opt": "wifi_wan"
             }
+        },
+        "waninfo": {
+            "url": "http://{}/protocol.csp",
+            "params": {
+                "function": "get",
+                "fname": "net",
+                "opt": "waninfo"
+            }
         }
     },
     "storage": {
@@ -204,46 +228,64 @@ config = {
     }
 }
 
-def req(js0n=None, r_=None):
+
+def req(js0n: dict=None, r=None):
     if js0n != None and isinstance(js0n, dict) and len(js0n) > 0:
         if "r" in js0n and js0n["r"] != None:
-            r = js0n["r"]
+            r_ = js0n["r"]
         else:
-            if r_ != None:
-                r = r_
+            if r != None:
+                r_ = r
             else:
-                r = None
+                r_ = None
         if "method" in js0n and js0n["method"] != None:
-            method = js0n["method"]
+            method_ = js0n["method"]
         else:
-            method = None
+            method_ = None
         if "url" in js0n and js0n["url"] != None:
-            url = js0n["url"]
+            url_ = js0n["url"]
         else:
-            url = None
+            url_ = None
+        if "params" in js0n and js0n["params"] != None:
+            params_ = js0n["params"]
+        else:
+            params_ = None
+        if "data" in js0n and js0n["data"] != None:
+            data_ = js0n["data"]
+        else:
+            data_ = None
+        if "headers" in js0n and js0n["headers"] != None:
+            headers_ = js0n["headers"]
+        else:
+            headers_ = None
         if "aftermethod" in js0n and js0n["aftermethod"] != None:
-            aftermethod = js0n["aftermethod"]
+            aftermethod_ = str(js0n["aftermethod"]).lower()
         else:
-            aftermethod = None
-        if r != None and method != None and url != None and aftermethod != None:
+            aftermethod_ = None
+        if r_ != None:
             try:
-                re = r.request(method=method, url=url)
+                re = r_.request(
+                    method=method_,
+                    url=url_,
+                    params=params_,
+                    data=data_,
+                    headers=headers_
+                )
             except Exception:
                 re = None
             if re != None:
-                aftermethod = str(aftermethod).lower()
                 out = None
-                if aftermethod == "text":
+                if aftermethod_ == "text":
                     try:
                         out = re.text
                     except Exception:
                         pass
-                if aftermethod == "json":
+                if aftermethod_ == "json":
                     try:
                         out = re.json()
                     except Exception:
                         pass
-                if aftermethod == "content":
+                if aftermethod_ == "content":
                     try:
                         out = re.content
                     except Exception:
@@ -254,23 +296,28 @@ def dtsup(params=None):
     if params != None and isinstance(params, dict) and len(params) > 0:
         return urllib.parse.urlencode(params)
 
-#method, url, params, data, headers, cookies, files, auth, timeout, allow_redirects, proxies, hooks, stream, verify, cert, json
+def jtd(d1 :dict=None, d2 :dict=None):
+    if d1 != None and isinstance(d1, dict) and len(d1) > 0 and d2 != None and isinstance(d2, dict) and len(d2) > 0:
+        for i in d2:
+            d1[i] = d2[i]
+        return d1
+
 ip = input("Type TreckSor's Ip : ")
 password = getpass.getpass("Type TreckSor's Password : ")
 with requests.session() as ses:
-    login_data = config["security"]["pwdchk"]
-    login_data["params"]["pwd1"] = password
-    storage_data = config["storage"]["disk"]
-    logout_data = config["logout"]
+    config["security"]["pwdchk"]["url"] = config["security"]["pwdchk"]["url"].format(ip)
+    config["security"]["pwdchk"]["params"]["pwd1"] = password
+    config["service"]["smb"]["url"] = config["service"]["smb"]["url"].format(ip)
+    config["logout"]["url"] = config["logout"]["url"].format(ip)
     list_data = [
-        f'{login_data["url"].format(ip)}?{dtsup(login_data["params"])}',
-        f'{storage_data["url"].format(ip)}?{dtsup(storage_data["params"])}',
-        f'{logout_data["url"].format(ip)}?{dtsup(logout_data["params"])}'
+        config["security"]["pwdchk"],
+        config["service"]["smb"],
+        config["logout"]
     ]
-    for url in list_data:
-        if url != None:
-            data_0 = req({"r": ses, "method": "get", "url": url, "aftermethod": "text"})
-            if data_0 != None:
-                data_1 = html_to_json.convert(data_0)
-                if data_1 != None:
-                    print(data_1)
+    for data in list_data:
+        if data != None:
+            data0 = req(jtd({"r": ses, "method": "get", "aftermethod": "text"}, data))
+            if data0 != None:
+                data1 = html_to_json.convert(data0)
+                if data1 != None:
+                    print(data1)
