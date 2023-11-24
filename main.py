@@ -1,5 +1,4 @@
 import requests, urllib, html_to_json, getpass
-
 config = {
     "security": {
         "pwdchk": {
