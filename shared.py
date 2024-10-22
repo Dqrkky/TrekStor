@@ -3,9 +3,7 @@ import json
 
 class Shared:
     def __init__(self, rss=None):
-        self.rss = None
-        if rss != None:
-            self.rss=rss
+        self.rss = None= if rss != None else None
     def get_request_headers_json(self):
         if hasattr(self, "rss") and self.rss != None:
             return {
@@ -29,7 +27,7 @@ class Shared:
                 config["method"] if "method" in config and config["method"] != None else None,
                 config["url"] if "url" in config and config["url"] != None else None,
                 config["params"] if "params" in config and config["params"] != None else None,
-                json.dumps(config["data"]) if "data" in config and config["data"] != None else None,
+                config["data"] if "data" in config and config["data"] != None else None,
                 config["headers"] if "headers" in config and config["headers"] != None else None,
                 config["cookies"] if "cookies" in config and config["cookies"] != None else None,
                 config["files"] if "files" in config and config["files"] != None else None,
@@ -46,3 +44,6 @@ class Shared:
     def dtsup(self, d1ct :dict=None):
         if d1ct != None and isinstance(d1ct, dict):
             return urllib.parse.urlencode(query=d1ct)
+    def construct(self, url :str=None, params :dict=None):
+        if url != None and isinstance(url, str) and params != None and isinstance(params, dict):
+            return f"{url}?{self.dtsup(d1ct=params)}"
