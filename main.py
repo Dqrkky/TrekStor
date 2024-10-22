@@ -232,7 +232,10 @@ class TrekStor:
             rss=self.rss
         )
     def login(self, name :str="admin", password :str=None):
-        if hasattr(self, config) and self.config != None and isinstance(self.config, dict) and "getaway" in self.config and self.config["getaway"] != None and name != None and isinstance(name, str) and password != None and isinstance(password, str):
+        if hasattr(self, config) and self.config != None and isinstance(self.config, dict) and \
+        "getaway" in self.config and self.config["getaway"] != None and \
+        name != None and isinstance(name, str) and \
+        password != None and isinstance(password, str):
             config = {
                 "url": f'http://{self.config["getaway"]}/protocol.csp',
                 "params": {
